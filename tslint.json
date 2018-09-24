@@ -1,0 +1,15 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "indent": [ true, "spaces", 2 ],
+        "interface-name": [ true, "never-prefix" ],
+        "no-bitwise": false,
+        "no-shadowed-variable": false,
+        "quotemark": [ true, "single", "avoid-escape", "avoid-template" ]
+    },
+    "rulesDirectory": []
+}

@@ -1,0 +1,11 @@
+# source files
+src
+
+# IDE config
+.vscode
+
+# tsconfig.json and tslint.json
+ts*.json
+
+# Output of 'npm pack'
+*.tgz

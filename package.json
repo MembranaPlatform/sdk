@@ -1,0 +1,50 @@
+{
+  "name": "@membrana/sdk",
+  "version": "0.1.0",
+  "description": "Membrana Platform SDK",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rm -r dist && tsc",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "test": "ts-mocha src/**/*.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MembranaPlatform/sdk.git"
+  },
+  "keywords": [],
+  "contributors": [
+    {
+      "name": "Alex Badmashkaev",
+      "url": "https://github.com/alexbadm"
+    }
+  ],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MembranaPlatform/sdk/issues"
+  },
+  "homepage": "https://github.com/MembranaPlatform/sdk#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run build && npm run lint"
+    }
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.5",
+    "@types/crypto-js": "^3.1.43",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.10.3",
+    "@types/whatwg-url": "^6.4.0",
+    "chai": "^4.1.2",
+    "husky": "^1.0.0-rc.15",
+    "mocha": "^5.2.0",
+    "ts-mocha": "^2.0.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "isomorphic-fetch": "^2.2.1",
+    "whatwg-url": "^7.0.0"
+  }
+}
