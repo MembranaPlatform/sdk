@@ -1,8 +1,7 @@
 import 'isomorphic-fetch';
-import { sha256 } from 'js-sha256';
 import { URL } from 'whatwg-url';
 import OrderBlank from './OrderBlank';
-import { toLengthPrefixedUint8Array } from './util';
+import { sign } from './util';
 
 export interface MembranaSDKOptions {
   APIToken: Credentials;
@@ -76,16 +75,9 @@ class MembranaSDK {
       init.method = 'GET';
     }
 
-    const body = init.body || '';
     const nonce = Date.now();
-    const method = init.method;
-
-    const signingString = `${method}\n${url.host}${url.pathname}${url.search}\n${nonce}\n${body}`;
-    const signPrefixedString = toLengthPrefixedUint8Array(signingString);
-
-    const signature = sha256.hmac(this.APIToken.secret, signPrefixedString);
+    const signature = sign(this.APIToken.secret, init.method, url, nonce, init.body as string || '');
     headers.Authorization = `membrana-token ${this.APIToken.key}:${signature}:${nonce}`;
-
     return fetch(url.href, init);
   }
 }
