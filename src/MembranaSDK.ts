@@ -1,7 +1,8 @@
-import { HmacSHA256 } from 'crypto-js';
 import 'isomorphic-fetch';
+import { sha256 } from 'js-sha256';
 import { URL } from 'whatwg-url';
 import OrderBlank from './OrderBlank';
+import { toLengthPrefixedUint8Array } from './util';
 
 export interface MembranaSDKOptions {
   APIToken: Credentials;
@@ -80,9 +81,9 @@ class MembranaSDK {
     const method = init.method;
 
     const signingString = `${method}\n${url.host}${url.pathname}${url.search}\n${nonce}\n${body}`;
-    const signStringBuffer = toLengthPrefixedBuffer(signingString);
+    const signPrefixedString = toLengthPrefixedUint8Array(signingString);
 
-    const signature = HmacSHA256(signStringBuffer.toString(), this.APIToken.secret).toString();
+    const signature = sha256.hmac(this.APIToken.secret, signPrefixedString);
     headers.Authorization = `membrana-token ${this.APIToken.key}:${signature}:${nonce}`;
 
     return fetch(url.href, init);
@@ -90,15 +91,3 @@ class MembranaSDK {
 }
 
 export default MembranaSDK;
-
-function toLengthPrefixedBuffer(msg: string): Buffer {
-  const msgBuf = Buffer.from(msg, 'utf8');
-  const sizeBuf = Buffer.allocUnsafe(8);
-
-  const size = msgBuf.length;
-  const big = ~~(size / 0x0100000000);
-  const low = (size % 0x0100000000);
-  sizeBuf.writeUInt32BE(big, 0);
-  sizeBuf.writeUInt32BE(low, 4);
-  return Buffer.concat([sizeBuf, msgBuf]);
-}
