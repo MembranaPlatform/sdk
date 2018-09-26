@@ -24,22 +24,17 @@ export function stringFromUint8Array(arr: Uint8Array): string {
 
 export function toLengthPrefixedUint8Array(msg: string): Uint8Array {
   const msgBuf = stringToUint8Array(msg);
-  const sizeBuf = new Uint8Array(8);
+  const sizeBuf = new ArrayBuffer(8);
+  const dataView = new DataView(sizeBuf);
 
   const size = msgBuf.length;
-  sizeBuf[7] = size & 0xFF;
-  if (size > 0xFF) {
-    sizeBuf[6] = (size >> 8) & 0xFF;
-    if (size > 0xFFFF) {
-      sizeBuf[5] = (size >> 16) & 0xFF;
-      if (size > 0xFFFFFF) {
-        sizeBuf[4] = (size >> 24) & 0xFF;
-      }
-    }
-  }
+  const highOrder32 = size / 0x0100000000 | 0;
+  const lowOrder32 = size | 0;
+  dataView.setUint32(0, highOrder32);
+  dataView.setUint32(4, lowOrder32);
 
   const result = new Uint8Array(size + 8);
-  result.set(sizeBuf);
+  result.set(new Uint8Array(sizeBuf));
   result.set(msgBuf, 8);
   return result;
 }
