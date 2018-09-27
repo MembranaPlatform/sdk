@@ -63,7 +63,7 @@ class MembranaSDK {
     });
   }
 
-  private signedRequest(path: string, init?: RequestInit): Promise<Response> {
+  private async signedRequest(path: string, init?: RequestInit): Promise<{ [k: string]: any }> {
     const url = new URL(path, this.baseUrl);
     const headers: { [h: string]: string } = {};
     init = init || {};
@@ -78,7 +78,17 @@ class MembranaSDK {
     const nonce = Date.now();
     const signature = sign(this.APIToken.secret, init.method, url, nonce, init.body as string || '');
     headers.Authorization = `membrana-token ${this.APIToken.key}:${signature}:${nonce}`;
-    return fetch(url.href, init);
+    const response = await fetch(url.href, init);
+    const data = await response.json();
+    if (response.ok) {
+      return data;
+    } else {
+      throw {
+        ...data,
+        statusCode: response.status,
+        statusText: response.statusText,
+      };
+    }
   }
 }
 

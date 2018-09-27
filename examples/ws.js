@@ -21,4 +21,7 @@ wsSdk.on('open', () => {
   wsSdk.rates('binance').subscribe((msg) => {
     console.log('received rates update:', msg);
   });
+  wsSdk.candles('binance', 'BTC-USDT', '1m').subscribe((msg) => {
+    console.log('candle data update:', msg);
+  })
 });

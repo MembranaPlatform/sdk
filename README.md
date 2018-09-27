@@ -56,8 +56,8 @@ const newOrder = await sdk.placeOrder({
   symbol: 'ETH-USDT',
   side: 'SELL',
   type: 'LIMIT',
+  limit: 248.85,
   amount: 2.5,
-  price: 248.85,
 });
 /*
   newOrder will have such a structure:
@@ -80,14 +80,14 @@ const newOrder = await sdk.placeOrder({
 */
 
 /* this command will get the same effect as above */
-const newOrder = await sdk.order('ETH-USDT').sell().limit().amount(2.5).price(248.85).send();
+const newOrder = await sdk.order('ETH-USDT').sell().amount(2.5).limit(248.85).send();
 
 // You can use 'order' method as a blank builder
 const ethUsdtBlank = sdk.order('ETH-USDT').limit().amount(1.15);
-const sellOrder = await ethUsdtBlank.sell().price(248.5).send();
-const buyOrder = await ethUsdtBlank.buy().price(247.8).send();
-const anotherSellOrder = await ethUsdtBlank.sell().price(248).send();
-const anotherBuyOrder = await ethUsdtBlank.buy().price(246.9).send();
+const sellOrder = await ethUsdtBlank.sell().limit(248.5).send();
+const buyOrder = await ethUsdtBlank.buy().limit(247.8).send();
+const anotherSellOrder = await ethUsdtBlank.sell().limit(248).send();
+const anotherBuyOrder = await ethUsdtBlank.buy().limit(246.9).send();
 
 // Cancel order
 const cancelResult = await sdk.cancelOrder(newOrder.id);
@@ -160,7 +160,12 @@ const orders = await sdk.getOrders('ETH-USDT'); // order will have the same stru
 
 ```javascript
 const MembranaWS = require('@membrana/sdk').ws;
-const wsSdk = new MembranaWS();
+const wsSdk = new MembranaWS({
+  APIToken: {
+    key: 'your membrana API key',
+    secret: 'your membrana API secret',
+  }
+});
 
 const subscribeResult = await wsSdk.rates('binance').subscribe(callback);
 const subscribeResult = await wsSdk.ticker('binance', 'BTC-USDT').subscribe((ticker) => {
