@@ -14,15 +14,11 @@ interface StreamProviderClass {
 }
 
 export interface MembranaSDKOptions {
-  APIToken: Credentials;
   baseUrl?: string;
-  StreamProvider: StreamProviderClass;
-  wsUrl?: string;
-}
-
-export interface Credentials {
   key: string;
   secret: string;
+  StreamProvider?: StreamProviderClass;
+  wsUrl?: string;
 }
 
 export enum OrderSide {
@@ -41,13 +37,39 @@ export interface OrderRequest {
 class MembranaSDK {
   public static defaultUrl: string = 'https://membrana.io';
   public baseUrl: string;
-  private APIToken: Credentials;
-  private stream: StreamProvider;
+  private apiKey: string;
+  private apiSecret: string;
+  private stream?: StreamProvider;
 
   constructor(options: MembranaSDKOptions) {
-    this.APIToken = options.APIToken;
+    this.apiKey = options.key;
+    this.apiSecret = options.secret;
     this.baseUrl = options.baseUrl || MembranaSDK.defaultUrl;
-    this.stream = new options.StreamProvider({ APIToken: options.APIToken, url: options.wsUrl });
+    if (options.StreamProvider) {
+      this.stream = new options.StreamProvider({
+        baseUrl: options.wsUrl || this.baseUrl.replace(/^http/, 'ws'),
+        key: options.key,
+        secret: options.secret,
+      });
+    }
+  }
+
+  public on(event: 'error', callback: (err: Error) => void): void;
+  public on(event: 'open'|'ready', callback: () => void): void;
+  public on(event: string, callback: (...params: any[]) => void): void {
+    if (!this.stream) {
+      throw new Error('StreamProvider was not initialized');
+    }
+    this.stream.on(event, callback);
+  }
+
+  public once(event: 'error', callback: (err: Error) => void): void;
+  public once(event: 'open'|'ready', callback: () => void): void;
+  public once(event: string, callback: (...params: any[]) => void): void {
+    if (!this.stream) {
+      throw new Error('StreamProvider was not initialized');
+    }
+    this.stream.once(event, callback);
   }
 
   public getBalances() {
@@ -66,18 +88,22 @@ class MembranaSDK {
     return this.signedRequest('/api/v1/external/order/' + orderId, { method: 'DELETE' });
   }
 
-  public order(symbol: string) {
-    return new OrderBlank(symbol, this);
+  public order(init?: string|OrderRequest) {
+    return new OrderBlank(this, init);
   }
 
-  public placeOrder(orderReq: OrderRequest) {
-    return this.signedRequest('/api/v1/external/order', {
+  public async placeOrder(orderReq: OrderRequest) {
+    const order = await this.signedRequest('/api/v1/external/order', {
       body: JSON.stringify(orderReq),
       method: 'POST',
     });
+    return order;
   }
 
   public account(): ChannelDescriptor {
+    if (!this.stream) {
+      throw new Error('StreamProvider was not initialized');
+    }
     const options: SubscriptionOptions = { channel: 'account' };
     return {
       subscribe: this.stream.subscribe.bind(this.stream, options),
@@ -89,6 +115,9 @@ class MembranaSDK {
   public market(type: 'orders'|'ticker'|'trades', symbol: string): ChannelDescriptor;
   public market(type: 'rates'): ChannelDescriptor;
   public market(type: MarketDataType, symbol?: string, interval?: string): ChannelDescriptor {
+    if (!this.stream) {
+      throw new Error('StreamProvider was not initialized');
+    }
     const options: SubscriptionOptions = { channel: type, symbol, interval };
     return {
       subscribe: this.stream.subscribe.bind(this.stream, options),
@@ -109,17 +138,17 @@ class MembranaSDK {
     }
 
     const nonce = Date.now();
-    const signature = sign(this.APIToken.secret, init.method, url, nonce, init.body as string || '');
-    headers.Authorization = `membrana-token ${this.APIToken.key}:${signature}:${nonce}`;
+    const signature = sign(this.apiSecret, init.method, url, nonce, init.body as string || '');
+    headers.Authorization = `membrana-token ${this.apiKey}:${signature}:${nonce}`;
     const response = await fetch(url.href, init);
     const data = await response.json();
-    if (response.ok) {
+    if (response.ok && !('error' in data)) {
       return data;
     } else {
       throw {
         ...data,
-        statusCode: response.status,
-        statusText: response.statusText,
+        httpStatusCode: response.status,
+        httpStatusText: response.statusText,
       };
     }
   }

@@ -3,7 +3,7 @@ import nock from 'nock';
 import MembranaSDK from './MembranaSDK';
 
 describe('MembranaSDK spec', () => {
-  const APIToken = {
+  const credentials = {
     key: '',
     secret: '',
   };
@@ -21,11 +21,8 @@ describe('MembranaSDK spec', () => {
         "prevDay":240.59,"priceStep":0.01,"symbol":"ETH-USDT","tradeStep":0.00001,"volume":422752.63813}]
         `, { 'content-type': 'application/json' });
 
-    const sdk = new MembranaSDK({ APIToken, baseUrl });
-    const response = await sdk.getMarkets();
-    // tslint:disable-next-line:no-unused-expression
-    expect(response.ok).to.be.true;
-    const markets = await response.json();
+    const sdk = new MembranaSDK({ ...credentials, baseUrl });
+    const markets = await sdk.getMarkets();
     expect(markets).to.deep.include({
       last: 0.034209,
       marketCurrencyName: 'ETH',
@@ -55,11 +52,8 @@ describe('MembranaSDK spec', () => {
         + '{"available":0.15739601,"name":"ETH","total":0.15739601},{"available":0,"name":"NEO","total":0},'
         + '{"available":0,"name":"USDT","total":0}]', { 'content-type': 'application/json' });
 
-    const sdk = new MembranaSDK({ APIToken, baseUrl });
-    const response = await sdk.getBalances();
-    // tslint:disable-next-line:no-unused-expression
-    expect(response.ok).to.be.true;
-    const balances = await response.json();
+    const sdk = new MembranaSDK({ ...credentials, baseUrl });
+    const balances = await sdk.getBalances();
     expect(balances).to.deep.include({ available: 0.00003582, name: 'BTC', total: 0.00003582 });
     expect(balances).to.deep.include({ available: 0.15739601, name: 'ETH', total: 0.15739601 });
     expect(balances).to.deep.include({ available: 0, name: 'LTC', total: 0 });
@@ -72,10 +66,8 @@ describe('MembranaSDK spec', () => {
       .query({ symbol })
       .reply(200, '{"open":[],"closed":[]}', { 'content-type': 'application/json' });
 
-    const sdk = new MembranaSDK({ APIToken, baseUrl });
-    const response = await sdk.getOrders(symbol);
-    const orders = await response.json();
-    // console.log(orders);
+    const sdk = new MembranaSDK({ ...credentials, baseUrl });
+    const orders = await sdk.getOrders(symbol);
     expect(orders).to.deep.equals({ open: [], closed: [] });
   });
 

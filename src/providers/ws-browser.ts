@@ -3,7 +3,7 @@ import StreamProvider, { StreamProviderOptions } from './stream';
 
 const debug = Debug('membrana-sdk:ws');
 
-export default class WSStreamProviderBrowser extends StreamProvider {
+class WSStreamProviderBrowser extends StreamProvider {
   protected wsInstance: WebSocket;
 
   constructor(options: StreamProviderOptions) {
@@ -24,9 +24,12 @@ export default class WSStreamProviderBrowser extends StreamProvider {
   }
 
   protected send(data: string): void {
-    if (this.wsInstance.readyState !== this.wsInstance.OPEN) {
-      throw new Error('websocket is not ready');
+    if (this.wsInstance.readyState === this.wsInstance.OPEN) {
+      this.wsInstance.send(data);
+    } else {
+      this.wsInstance.addEventListener('open', this.wsInstance.send.bind(this.wsInstance, data), { once: true });
     }
-    this.wsInstance.send(data);
   }
 }
+
+export = WSStreamProviderBrowser;
