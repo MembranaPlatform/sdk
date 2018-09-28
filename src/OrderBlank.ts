@@ -49,6 +49,10 @@ class OrderBlank {
     return this.sdk.placeOrder(this.toJSON());
   }
 
+  public subscribe(): never {
+    throw new Error('not implemented yet');
+  }
+
   public symbol(symbol: string) {
     const clone = this.clone();
     clone.SYMBOL = symbol;

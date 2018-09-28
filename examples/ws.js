@@ -9,7 +9,7 @@ var wsSdk = new MembranaWS({
     key: 'b683f06191e16816f080da73f21c3a41c8e04480',
     secret: 'e54373c2f45d466e0c7f75898a82d80212d60b3c',
   },
-  url: 'ws://beta.membrana.io/api/v1/extern'
+  url: 'ws://localhost:7010/api/v1/extern'
 });
 
 wsSdk.on('error', (err) => {
