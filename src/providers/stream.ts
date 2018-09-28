@@ -2,13 +2,14 @@ import Debug from 'debug';
 import { sha256 } from 'js-sha256';
 import { URL } from 'whatwg-url';
 import EventEmitter from 'wolfy87-eventemitter';
-import { Credentials } from '../MembranaSDK';
 
 const debug = Debug('membrana-sdk:ws');
 
 export interface StreamProviderOptions {
-  APIToken: Credentials;
-  url?: string;
+  baseUrl?: string;
+  initTimeout?: number;
+  key: string;
+  secret: string;
 }
 
 export interface ChannelDescriptor {
@@ -30,25 +31,32 @@ export interface SubscriptionParams extends SubscriptionOptions {
 }
 
 export default abstract class StreamProvider extends EventEmitter {
-  public static defaultUrl: string = 'wss://membrana.io/api/v1/extern';
+  public static defaultUrl: string = 'wss://membrana.io';
   protected Authorization: string;
-  protected APIToken: Credentials;
   protected exchange: string = '';
+  protected initTimeout: NodeJS.Timer;
   protected lastReqId: number;
+  protected apiKey: string;
+  protected apiSecret: string;
   protected url: string;
 
   constructor(options: StreamProviderOptions) {
     super();
-    this.APIToken = options.APIToken;
     this.lastReqId = 0;
-    this.url = options.url || StreamProvider.defaultUrl;
+    this.apiKey = options.key;
+    this.apiSecret = options.secret;
+    this.url = (options.baseUrl || StreamProvider.defaultUrl) + '/api/v1/extern';
 
     const url = new URL(this.url);
     const nonce = Date.now();
 
     const signingString = `${url.host}${url.pathname}${url.search}\n${nonce}`;
-    const signature = sha256.hmac(this.APIToken.secret, signingString);
-    this.Authorization = `membrana-token ${this.APIToken.key}:${signature}:${nonce}`;
+    const signature = sha256.hmac(this.apiSecret, signingString);
+    this.Authorization = `membrana-token ${this.apiKey}:${signature}:${nonce}`;
+
+    this.initTimeout = setTimeout(() => {
+      this.emit('error', new Error('init timeout exceeded'));
+    }, options.initTimeout || 5000);
   }
 
   public subscribe(options: SubscriptionOptions, callback: (msg: any) => void) {
@@ -60,9 +68,17 @@ export default abstract class StreamProvider extends EventEmitter {
   }
 
   protected onMessage(msg: { [k: string]: any }) {
-    if ('method' in msg && msg.method === 'notification' && Array.isArray(msg.params)) {
-      this.emit.apply(this, msg.params);
-      return;
+    if ('method' in msg) {
+      if (msg.method === 'notification' && Array.isArray(msg.params)) {
+        this.emit.apply(this, msg.params);
+        return;
+      }
+      if (msg.method === 'init') {
+        this.exchange = msg.params.exchange;
+        clearTimeout(this.initTimeout);
+        this.emit('ready');
+        return;
+      }
     }
     if ('id' in msg) {
       this.emit(String(msg.id), msg);
@@ -75,7 +91,7 @@ export default abstract class StreamProvider extends EventEmitter {
 
   private subAction(options: SubscriptionOptions, isSubscribe: boolean, callback: (msg: any) => void) {
     const params: SubscriptionParams = {
-      apiKey: this.APIToken.key,
+      apiKey: this.apiKey,
       channel: options.channel,
       exchange: this.exchange,
       interval: options.interval,

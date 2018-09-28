@@ -4,15 +4,23 @@ class OrderBlank {
   public AMOUNT: number = 0;
   public LIMIT: number = 0;
   public SIDE: OrderSide = OrderSide.SELL;
-  public SYMBOL: string;
+  public SYMBOL: string = '';
   public TYPE = 'LIMIT' as 'LIMIT';
 
   private sdk: MembranaSDK;
 
-  constructor(symbol: string, sdk: MembranaSDK) {
+  constructor(sdk: MembranaSDK, init?: string|OrderRequest) {
     this.sdk = sdk;
-    this.SYMBOL = symbol;
     Object.defineProperty(this, 'sdk', { enumerable: false });
+    if (typeof init === 'string') {
+      this.SYMBOL = init;
+    } else if (typeof init === 'object') {
+      this.AMOUNT = init.amount;
+      this.LIMIT = init.limit;
+      this.SIDE = init.side;
+      this.SYMBOL = init.symbol;
+      this.TYPE = init.type || 'LIMIT';
+    }
   }
 
   public amount(amount: number) {
@@ -28,7 +36,7 @@ class OrderBlank {
   }
 
   public clone(): OrderBlank {
-    const clone = new OrderBlank(this.SYMBOL, this.sdk);
+    const clone = new OrderBlank(this.sdk);
     Object.assign(clone, this);
     return clone;
   }

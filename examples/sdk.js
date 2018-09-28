@@ -1,70 +1,78 @@
-const { MembranaSDK } = require('../dist');
-const { OrderSide } = require('../dist/MembranaSDK');
+/*
+  It's plain javascript example so it requires compiled code from '../dist' folder.
+  Perform 'npm install' and 'npm run build' before trying these examples.
+*/
+const MembranaSDK = require('../dist');
+const StreamProvider = require('../dist/providers/ws-node');
+// const StreamProvider = require('../dist/providers/ws-browser');
 
-const sdk = new MembranaSDK({
-  APIToken: {
-    key: 'your membrana API key',
-    secret: 'your membrana API secret',
+const credentials = {
+  key: 'your API key',
+  secret: 'your API secret',
+};
+
+const membrana = new MembranaSDK({
+  ...credentials,
+  StreamProvider,
+  baseUrl: 'https://beta.membrana.io',
+});
+
+membrana.on('error', (err) => {
+  console.error('error event', err);
+  process.exit(1);
+});
+
+(async () => {
+  try {
+    const markets = await membrana.getMarkets();
+    console.log('markets', markets);
+
+    const balances = await membrana.getBalances();
+    console.log('balances', balances);
+
+    const myOrders = await membrana.getOrders('XRP-ETH');
+    console.log('myOrders', myOrders);
+
+    const newOrder = await membrana.order()
+      .symbol('ETH-USDT')
+      .amount(2)
+      .sell()
+      .limit(258.65)
+      .send();
+    console.log('order placed', newOrder);
+  } catch (err) {
+    console.log('something went wrong', err);
+  }
+})();
+
+membrana.on('ready', async () => {
+  try {
+    const ratesSubscription = await membrana.market('rates').subscribe((rates) => {
+      console.log('rates updated', rates);
+    });
+    console.log('rates subscription success', ratesSubscription);
+
+    setTimeout(async () => {
+      const unsub = await ratesSubscription.unsubscribe();
+      console.log('rates successfully unsubscribed', unsub);
+    }, 5000);
+  } catch (err) {
+    console.log('subscription failed', err);
   }
 });
 
-sdk.getBalances().then((balances) => {
-  console.log('balances on the account:', balances);
-});
+membrana.on('ready', async () => {
+  try {
+    const candlesSubscription = await membrana.market('candles', 'ETH-USDT', '1m').subscribe((candles) => {
+      console.log('candles updated', candles);
+    });
+    console.log('candles subscription success', candlesSubscription);
 
-sdk.getMarkets().then((markets) => {
-  console.log('markets info:', markets);
-});
-
-/*
-  You can place new orders in two ways. The first one is to invoke "placeOrder" method
-  with a plain object as a parameter. The second is to use "order" method which is the
-  order builder. See examples below:
-*/
-
-sdk.placeOrder({
-  symbol: 'ETH-USDT',
-  side: OrderSide.SELL,
-  type: 'LIMIT',
-  amount: 2.5,
-  limit: 248.85,
-}).then(order => {
-  console.log('new order placed', order);
-}).catch((err) => {
-  console.log('failed to place order', err);
-});
-
-/* this command will get the same effect as above */
-sdk.order('ETH-USDT').sell().limit(248.85).amount(2.5).send()
-.then((newOrder) => {
-  console.log('new order placed', newOrder);
-  console.log('let\'s cancel it');
-  return sdk.cancelOrder(newOrder.id);
-})
-.then((cancelResult) => {
-  console.log('order canceled', cancelResult);
-})
-.catch((err) => {
-  console.log('something went wrong', err);
-});
-
-// You can use 'order' method as a blank builder
-const ethUsdtBlank = sdk.order('ETH-USDT').amount(1.15);
-(async function someAsyncFunction() {
-  const sellOrder = await ethUsdtBlank.sell().limit(248.5).send();
-  const buyOrder = await ethUsdtBlank.buy().limit(247.8).send();
-  const anotherSellOrder = await ethUsdtBlank.sell().limit(248).send();
-  const anotherBuyOrder = await ethUsdtBlank.buy().limit(246.9).send();
-  console.log({
-    sellOrder,
-    buyOrder,
-    anotherSellOrder,
-    anotherBuyOrder,
-  });
-})();
-
-// Get all orders for a symbol
-sdk.getOrders('ETH-USDT').then((ordersInfo) => {
-  console.log('my open orders', ordersInfo.open);
-  console.log('my closed orders', ordersInfo.closed);
+    setTimeout(async () => {
+      const unsub = await candlesSubscription.unsubscribe();
+      console.log('candles successfully unsubscribed', unsub);
+    }, 5000);
+  } catch (err) {
+    console.log('subscription failed', err);
+  }
 });
