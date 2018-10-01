@@ -38,7 +38,7 @@ membrana.on('error', (err) => {
     console.log('myOrders', myOrders);
 
     const newOrder = await membrana.order()
-      .market('ETH-USDT')
+      .market('USDT-ETH')
       .amount(2)
       .sell()
       .limit(258.65)
@@ -67,7 +67,7 @@ membrana.on('ready', async () => {
 
 membrana.on('ready', async () => {
   try {
-    const candlesSubscription = await membrana.channel('candles', 'ETH-USDT', '1m').subscribe((candles) => {
+    const candlesSubscription = await membrana.channel('candles', 'USDT-ETH', '1m').subscribe((candles) => {
       console.log('candles updated', candles);
     });
     console.log('candles subscription success', candlesSubscription);

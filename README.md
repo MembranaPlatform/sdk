@@ -40,7 +40,7 @@ const sdk = new MembranaSDK({
     return format:
     [
       {
-        "symbol": "LTC-USDT",
+        "symbol": "USDT-LTC",
         "last": 0,
         "marketCurrencyName": "Litecoin",
         "minTradeSize": 0,
@@ -53,7 +53,7 @@ const sdk = new MembranaSDK({
   */
 
   const newOrder = await sdk.placeOrder({
-    symbol: 'ETH-USDT',
+    symbol: 'USDT-ETH',
     side: 'SELL',
     type: 'LIMIT',
     limit: 248.85,
@@ -64,7 +64,7 @@ const sdk = new MembranaSDK({
     {
       "_id": "string",
       "exchange": "binance",
-      "symbol": "BTC-USDT",
+      "symbol": "USDT-ETH",
       "state": "OPEN",
       "type": "buy",
       "dt": "2018-09-24T08:24:14Z",
@@ -80,10 +80,10 @@ const sdk = new MembranaSDK({
   */
 
   /* this command will get the same effect as above */
-  const newOrder2 = await sdk.order.market('ETH-USDT').sell().amount(2.5).limit(248.85).send();
+  const newOrder2 = await sdk.order.market('USDT-ETH').sell().amount(2.5).limit(248.85).send();
 
   // You can use 'order' method as a blank builder
-  const ethUsdtBlank = sdk.order.market('ETH-USDT').limit(248.85).amount(1.15);
+  const ethUsdtBlank = sdk.order.market('USDT-ETH').limit(248.85).amount(1.15);
   const sellOrder = await ethUsdtBlank.sell().limit(248.5).send();
   const buyOrder = await ethUsdtBlank.buy().limit(247.8).send();
   const anotherSellOrder = await ethUsdtBlank.sell().limit(248).send();
@@ -96,7 +96,7 @@ const sdk = new MembranaSDK({
     {
       "_id": "string",
       "exchange": "binance",
-      "symbol": "BTC-USDT",
+      "symbol": "USDT-BTC",
       "state": "CLOSED",
       "type": "buy",
       "dt": "2018-09-24T08:24:14Z",
@@ -112,7 +112,7 @@ const sdk = new MembranaSDK({
   */
 
   // Get all orders for a symbol
-  const orders = await sdk.getOrders('ETH-USDT'); // order will have the same structure as newOrder
+  const orders = await sdk.getOrders('USDT-ETH'); // order will have the same structure as newOrder
   /*
     return example:
     {
@@ -120,7 +120,7 @@ const sdk = new MembranaSDK({
         {
           "_id": "string",
           "exchange": "binance",
-          "symbol": "BTC-USDT",
+          "symbol": "USDT-BTC",
           "state": "OPEN",
           "type": "buy",
           "dt": "2018-09-24T08:24:14Z",
@@ -138,7 +138,7 @@ const sdk = new MembranaSDK({
         {
           "_id": "string",
           "exchange": "binance",
-          "symbol": "BTC-USDT",
+          "symbol": "USDT-BTC",
           "state": "OPEN",
           "type": "buy",
           "dt": "2018-09-24T08:24:14Z",
@@ -177,7 +177,7 @@ const sdk = new MembranaSDK({
 
 membrana.on('ready', async () => {
   try {
-    const candlesSubscription = await membrana.channel('candles', 'ETH-USDT', '1m').subscribe((candles) => {
+    const candlesSubscription = await membrana.channel('candles', 'USDT-ETH', '1m').subscribe((candles) => {
       console.log('candles updated', candles);
       /*
         candles updated [ {
@@ -204,3 +204,9 @@ membrana.on('ready', async () => {
 ```
 
 See complete example [here](examples/sdk.js)
+
+## Symbol format
+
+Trading pairs should look like 'USDT-BTC'. "Quote asset" must be first followed by "Base asset". Use dash ("-") as a delimiter.
+
+If you want to buy ETH and give USDT, the symbol will 'USDT-ETH' and price will be expressed by the amount of USDT per ETH.
