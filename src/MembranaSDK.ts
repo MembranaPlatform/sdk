@@ -54,6 +54,15 @@ class MembranaSDK {
     }
   }
 
+  public off(event: 'error', callback: (err: Error) => void): void;
+  public off(event: 'open'|'ready', callback: () => void): void;
+  public off(event: string, callback: (...params: any[]) => void): void {
+    if (!this.stream) {
+      throw new Error('StreamProvider was not initialized');
+    }
+    this.stream.off(event, callback);
+  }
+
   public on(event: 'error', callback: (err: Error) => void): void;
   public on(event: 'open'|'ready', callback: () => void): void;
   public on(event: string, callback: (...params: any[]) => void): void {
@@ -107,22 +116,25 @@ class MembranaSDK {
     const options: SubscriptionOptions = { channel: 'account' };
     return {
       subscribe: this.stream.subscribe.bind(this.stream, options),
-      unsubscribe: this.stream.unsubscribe.bind(this.stream, options),
+      // unsubscribe: this.stream.unsubscribe.bind(this.stream, options),
     };
   }
 
-  public market(type: 'candles', symbol: string, interval: string): ChannelDescriptor;
-  public market(type: 'orders'|'ticker'|'trades', symbol: string): ChannelDescriptor;
-  public market(type: 'rates'): ChannelDescriptor;
-  public market(type: MarketDataType, symbol?: string, interval?: string): ChannelDescriptor {
-    if (!this.stream) {
-      throw new Error('StreamProvider was not initialized');
-    }
+  public channel(type: 'candles', symbol: string, interval: string): ChannelDescriptor;
+  public channel(type: 'orders'|'ticker'|'trades', symbol: string): ChannelDescriptor;
+  public channel(type: 'rates'): ChannelDescriptor;
+  public channel(type: MarketDataType, symbol?: string, interval?: string): ChannelDescriptor {
     const options: SubscriptionOptions = { channel: type, symbol, interval };
-    return {
-      subscribe: this.stream.subscribe.bind(this.stream, options),
-      unsubscribe: this.stream.unsubscribe.bind(this.stream, options),
+    const subscribe = (usersAction: (msg: any) => void) => {
+      if (!this.stream) {
+        throw new Error('StreamProvider is not initialized');
+      }
+      const callback = type === 'orders'
+        ? (msg: any) => usersAction(msg.content)
+        : (msg: any) => usersAction(msg.content[type]);
+      return this.stream.subscribe(options, callback);
     };
+    return { subscribe };
   }
 
   private async signedRequest(path: string, init?: RequestInit): Promise<{ [k: string]: any }> {

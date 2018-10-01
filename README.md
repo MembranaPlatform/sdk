@@ -2,7 +2,7 @@
 
 This package is useful for quickly building applications that communicate with Membrana Platform through the API.
 
-## Usage
+## Usage Examples
 
 ### Trading API
 
@@ -80,10 +80,10 @@ const sdk = new MembranaSDK({
   */
 
   /* this command will get the same effect as above */
-  const newOrder2 = await sdk.order('ETH-USDT').sell().amount(2.5).limit(248.85).send();
+  const newOrder2 = await sdk.order.market('ETH-USDT').sell().amount(2.5).limit(248.85).send();
 
   // You can use 'order' method as a blank builder
-  const ethUsdtBlank = sdk.order('ETH-USDT').limit(248.85).amount(1.15);
+  const ethUsdtBlank = sdk.order.market('ETH-USDT').limit(248.85).amount(1.15);
   const sellOrder = await ethUsdtBlank.sell().limit(248.5).send();
   const buyOrder = await ethUsdtBlank.buy().limit(247.8).send();
   const anotherSellOrder = await ethUsdtBlank.sell().limit(248).send();
@@ -157,9 +157,9 @@ const sdk = new MembranaSDK({
 })();
 ```
 
-### WebSocket API
+### Stream API
 
-To use WebSocket API just add a StreamProvider to MembranaSDK constructor parameter. There are two stream providers at the moment. One for NodeJS environment and another for browser environment.
+To use Stream API just add a StreamProvider to MembranaSDK constructor parameter. There are two stream providers at the moment. One for NodeJS environment and another for a browser environment. Both are WebSocket stream.
 
 ```javascript
 const MembranaSDK = require('@membrana/sdk');
@@ -177,8 +177,19 @@ const sdk = new MembranaSDK({
 
 membrana.on('ready', async () => {
   try {
-    const candlesSubscription = await membrana.market('candles', 'ETH-USDT', '1m').subscribe((candles) => {
+    const candlesSubscription = await membrana.channel('candles', 'ETH-USDT', '1m').subscribe((candles) => {
       console.log('candles updated', candles);
+      /*
+        candles updated [ {
+          BV: 15988.9955476,
+          C: 230.51,
+          H: 230.65,
+          L: 230.51,
+          O: 230.65,
+          T: 1538378940000,
+          V: 69.35105
+        } ]
+      */
     });
     console.log('candles subscription success', candlesSubscription);
 
