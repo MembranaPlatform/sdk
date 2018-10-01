@@ -47,6 +47,11 @@ class OrderBlank {
     return clone;
   }
 
+  // alias for 'symbol' method
+  public market(symbol: string) {
+    return this.symbol(symbol);
+  }
+
   public sell() {
     const clone = this.clone();
     clone.SIDE = OrderSide.SELL;
