@@ -17,6 +17,10 @@ const membrana = new MembranaSDK({
   baseUrl: 'https://beta.membrana.io',
 });
 
+membrana.on('open', () => {
+  console.log('Stream open. Press Ctrl+C to stop the program');
+});
+
 membrana.on('error', (err) => {
   console.error('error event', err);
   process.exit(1);
@@ -34,7 +38,7 @@ membrana.on('error', (err) => {
     console.log('myOrders', myOrders);
 
     const newOrder = await membrana.order()
-      .symbol('ETH-USDT')
+      .market('ETH-USDT')
       .amount(2)
       .sell()
       .limit(258.65)
@@ -47,7 +51,7 @@ membrana.on('error', (err) => {
 
 membrana.on('ready', async () => {
   try {
-    const ratesSubscription = await membrana.market('rates').subscribe((rates) => {
+    const ratesSubscription = await membrana.channel('rates').subscribe((rates) => {
       console.log('rates updated', rates);
     });
     console.log('rates subscription success', ratesSubscription);
@@ -63,7 +67,7 @@ membrana.on('ready', async () => {
 
 membrana.on('ready', async () => {
   try {
-    const candlesSubscription = await membrana.market('candles', 'ETH-USDT', '1m').subscribe((candles) => {
+    const candlesSubscription = await membrana.channel('candles', 'ETH-USDT', '1m').subscribe((candles) => {
       console.log('candles updated', candles);
     });
     console.log('candles subscription success', candlesSubscription);

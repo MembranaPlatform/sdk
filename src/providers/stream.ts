@@ -14,7 +14,7 @@ export interface StreamProviderOptions {
 
 export interface ChannelDescriptor {
   subscribe(callback: (msg: any) => void): Promise<any>;
-  unsubscribe(callback: (msg: any) => void): Promise<any>;
+  // unsubscribe(callback: (msg: any) => void): Promise<any>;
 }
 
 export type MarketDataType = 'candles'|'trades'|'rates'|'ticker'|'orders'|'account';
@@ -107,15 +107,16 @@ export default abstract class StreamProvider extends EventEmitter {
     return new Promise((resolve, reject) => {
       this[isSubscribe ? 'on' : 'off'](ch, callback);
       this.once(String(this.lastReqId), (response: any) => {
-        if ('error' in response) {
-          reject(response);
+        if (!('result' in response)) {
+          reject(response.error || { error: 'unknown error', response });
+          return;
         }
         if (isSubscribe) {
-          Object.defineProperty(response, 'unsubscribe', {
+          Object.defineProperty(response.result, 'unsubscribe', {
             value: this.subAction.bind(this, options, false, callback),
           });
         }
-        resolve(response);
+        resolve(response.result);
       });
       this.send(JSON.stringify(request));
     });
