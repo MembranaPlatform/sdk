@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import MembranaSDK from './MembranaSDK';
+import MembranaSDK, { OrderSide } from './MembranaSDK';
 import OrderBlank from './OrderBlank';
 
 describe('OrderBlank spec', () => {
@@ -19,5 +19,27 @@ describe('OrderBlank spec', () => {
     expect(orderA.LIMIT).to.equals(0);
     expect(orderB.LIMIT).to.equals(6700);
     expect(orderA.SYMBOL).to.equals(orderB.SYMBOL);
+  });
+
+  it('another approach should also work', () => {
+    const sdk = new MembranaSDK({ key: '', secret: '' });
+    const orderA = new OrderBlank(sdk);
+    expect(orderA.AMOUNT).to.equals(0);
+    expect(orderA.LIMIT).to.equals(0);
+    expect(orderA.SYMBOL).to.equals('');
+  });
+
+  it('pass object as init', () => {
+    const sdk = new MembranaSDK({ key: '', secret: '' });
+    const orderA = new OrderBlank(sdk, {
+      amount: 1.4,
+      limit: 7000,
+      side: OrderSide.SELL,
+      symbol: 'BTC-USDT',
+      type: 'LIMIT',
+    });
+    expect(orderA.AMOUNT).to.equals(1.4);
+    expect(orderA.LIMIT).to.equals(7000);
+    expect(orderA.SYMBOL).to.equals('BTC-USDT');
   });
 });

@@ -73,7 +73,7 @@ describe('MembranaSDK spec', () => {
 
   // it('order method', async () => {
   //   const symbol = 'USDT-XRP';
-  //   const sdk = new MembranaSDK({ APIToken, baseUrl });
+  //   const sdk = new MembranaSDK({ ...credentials, baseUrl });
   //   const orderBlank = sdk.order(symbol).sell();
   //   const response = await orderBlank.limit(0.47).amount(40).send();
   //   console.log(response);
@@ -83,7 +83,7 @@ describe('MembranaSDK spec', () => {
 
   // it('cancelOrder method', async () => {
   //   const symbol = 'USDT-XRP';
-  //   const sdk = new MembranaSDK({ APIToken, baseUrl });
+  //   const sdk = new MembranaSDK({ ...credentials, baseUrl });
   //   const response = await sdk.cancelOrder(symbol);
   //   console.log(response);
   //   const order = await response.json();

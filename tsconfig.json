@@ -28,6 +28,7 @@
   },
   "exclude": [
     "./src/**/*.spec.ts",
-    "./examples"
+    "./examples",
+    "./dist"
   ]
 }

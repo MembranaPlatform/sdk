@@ -13,6 +13,7 @@ class WSStreamProviderNode extends StreamProvider {
     this.wsInstance = new WebSocket(this.url, { headers });
     this.wsInstance.on('open', () => this.emit('open'));
     this.wsInstance.on('error', (err: any) => this.emit('error', err));
+    this.wsInstance.on('close', this.onClose.bind(this));
     this.wsInstance.on('message', (msgData: WebSocket.Data) => {
       try {
         const msg = JSON.parse(String(msgData));

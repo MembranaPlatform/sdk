@@ -87,6 +87,12 @@ export default abstract class StreamProvider extends EventEmitter {
     debug('unknown ws event. msg: %o', msg);
   }
 
+  protected onClose() {
+    if (this.initTimeout) {
+      clearTimeout(this.initTimeout);
+    }
+  }
+
   protected abstract send(data: string): void;
 
   private subAction(options: SubscriptionOptions, isSubscribe: boolean, callback: (msg: any) => void) {

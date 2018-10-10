@@ -4,7 +4,7 @@
   "description": "Membrana Platform SDK",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -r dist && tsc",
+    "build": "rm -rf dist && tsc",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "ts-mocha src/**/*.spec.ts"
   },
