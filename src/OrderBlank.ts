@@ -1,4 +1,4 @@
-import MembranaSDK, { OrderRequest, OrderSide } from './MembranaSDK';
+import MembranaSDK, { IOrderRequest, OrderSide } from './MembranaSDK';
 
 class OrderBlank {
   public AMOUNT: number = 0;
@@ -9,7 +9,7 @@ class OrderBlank {
 
   private sdk: MembranaSDK;
 
-  constructor(sdk: MembranaSDK, init?: string|OrderRequest) {
+  constructor(sdk: MembranaSDK, init?: string|IOrderRequest) {
     this.sdk = sdk;
     Object.defineProperty(this, 'sdk', { enumerable: false });
     if (typeof init === 'string') {
@@ -72,7 +72,7 @@ class OrderBlank {
     return clone;
   }
 
-  public toJSON(): OrderRequest {
+  public toJSON(): IOrderRequest {
     return {
       amount: this.AMOUNT,
       limit: this.LIMIT,

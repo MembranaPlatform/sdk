@@ -1,12 +1,12 @@
 import Debug from 'debug';
-import StreamProvider, { StreamProviderOptions } from './stream';
+import StreamProvider, { IStreamProviderOptions } from './stream';
 
 const debug = Debug('membrana-sdk:ws');
 
 class WSStreamProviderBrowser extends StreamProvider {
   protected wsInstance: WebSocket;
 
-  constructor(options: StreamProviderOptions) {
+  constructor(options: IStreamProviderOptions) {
     super(options);
     const url = new URL(this.url);
     url.searchParams.set('authorization', this.Authorization);

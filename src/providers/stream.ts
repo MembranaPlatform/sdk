@@ -6,27 +6,27 @@ import { decodeHexString } from '../util';
 
 const debug = Debug('membrana-sdk:ws');
 
-export interface StreamProviderOptions {
+export interface IStreamProviderOptions {
   baseUrl?: string;
   initTimeout?: number;
   key: string;
   secret: string;
 }
 
-export interface ChannelDescriptor {
+export interface IChannelDescriptor {
   subscribe(callback: (msg: any) => void): Promise<any>;
   // unsubscribe(callback: (msg: any) => void): Promise<any>;
 }
 
 export type MarketDataType = 'candles'|'trades'|'rates'|'ticker'|'orders'|'account';
 
-export interface SubscriptionOptions {
+export interface ISubscriptionOptions {
   channel: MarketDataType;
   interval?: string;
   symbol?: string;
 }
 
-export interface SubscriptionParams extends SubscriptionOptions {
+export interface ISubscriptionParams extends ISubscriptionOptions {
   apiKey: string;
   exchange: string;
 }
@@ -41,7 +41,7 @@ export default abstract class StreamProvider extends EventEmitter {
   protected apiSecret: string;
   protected url: string;
 
-  constructor(options: StreamProviderOptions) {
+  constructor(options: IStreamProviderOptions) {
     super();
     this.lastReqId = 0;
     this.apiKey = options.key;
@@ -60,11 +60,11 @@ export default abstract class StreamProvider extends EventEmitter {
     }, options.initTimeout || 5000);
   }
 
-  public subscribe(options: SubscriptionOptions, callback: (msg: any) => void) {
+  public subscribe(options: ISubscriptionOptions, callback: (msg: any) => void) {
     return this.subAction(options, true, callback);
   }
 
-  public unsubscribe(options: SubscriptionOptions, callback: (msg: any) => void) {
+  public unsubscribe(options: ISubscriptionOptions, callback: (msg: any) => void) {
     return this.subAction(options, false, callback);
   }
 
@@ -96,8 +96,8 @@ export default abstract class StreamProvider extends EventEmitter {
 
   protected abstract send(data: string): void;
 
-  private subAction(options: SubscriptionOptions, isSubscribe: boolean, callback: (msg: any) => void) {
-    const params: SubscriptionParams = {
+  private subAction(options: ISubscriptionOptions, isSubscribe: boolean, callback: (msg: any) => void) {
+    const params: ISubscriptionParams = {
       apiKey: this.apiKey,
       channel: options.channel,
       exchange: this.exchange,
@@ -130,7 +130,7 @@ export default abstract class StreamProvider extends EventEmitter {
   }
 }
 
-function generateChannelName(params: SubscriptionParams): string {
+function generateChannelName(params: ISubscriptionParams): string {
   switch (params.channel) {
     case 'candles':
       return `${params.exchange}.${params.channel}.${params.symbol}.${params.interval}`;

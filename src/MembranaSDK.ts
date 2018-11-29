@@ -2,22 +2,22 @@ import 'isomorphic-fetch';
 import { URL } from 'whatwg-url';
 import OrderBlank from './OrderBlank';
 import StreamProvider, {
-  ChannelDescriptor,
+  IChannelDescriptor,
+  IStreamProviderOptions,
+  ISubscriptionOptions,
   MarketDataType,
-  StreamProviderOptions,
-  SubscriptionOptions,
 } from './providers/stream';
 import { sign } from './util';
 
-interface StreamProviderClass {
-  new(options: StreamProviderOptions): StreamProvider;
+interface IStreamProviderClass {
+  new(options: IStreamProviderOptions): StreamProvider;
 }
 
-export interface MembranaSDKOptions {
+export interface IMembranaSDKOptions {
   baseUrl?: string;
   key: string;
   secret: string;
-  StreamProvider?: StreamProviderClass;
+  StreamProvider?: IStreamProviderClass;
   wsUrl?: string;
 }
 
@@ -26,7 +26,7 @@ export enum OrderSide {
   SELL = 'SELL',
 }
 
-export interface OrderRequest {
+export interface IOrderRequest {
   amount: number;
   limit: number;
   side: OrderSide;
@@ -41,7 +41,7 @@ class MembranaSDK {
   private apiSecret: string;
   private stream?: StreamProvider;
 
-  constructor(options: MembranaSDKOptions) {
+  constructor(options: IMembranaSDKOptions) {
     this.apiKey = options.key;
     this.apiSecret = options.secret;
     this.baseUrl = options.baseUrl || MembranaSDK.defaultUrl;
@@ -97,11 +97,11 @@ class MembranaSDK {
     return this.signedRequest('/api/v1/external/order/' + orderId, { method: 'DELETE' });
   }
 
-  public order(init?: string|OrderRequest) {
+  public order(init?: string|IOrderRequest) {
     return new OrderBlank(this, init);
   }
 
-  public async placeOrder(orderReq: OrderRequest) {
+  public async placeOrder(orderReq: IOrderRequest) {
     const order = await this.signedRequest('/api/v1/external/order', {
       body: JSON.stringify(orderReq),
       method: 'POST',
@@ -109,22 +109,22 @@ class MembranaSDK {
     return order;
   }
 
-  public account(): ChannelDescriptor {
+  public account(): IChannelDescriptor {
     if (!this.stream) {
       throw new Error('StreamProvider was not initialized');
     }
-    const options: SubscriptionOptions = { channel: 'account' };
+    const options: ISubscriptionOptions = { channel: 'account' };
     return {
       subscribe: this.stream.subscribe.bind(this.stream, options),
       // unsubscribe: this.stream.unsubscribe.bind(this.stream, options),
     };
   }
 
-  public channel(type: 'candles', symbol: string, interval: string): ChannelDescriptor;
-  public channel(type: 'orders'|'ticker'|'trades', symbol: string): ChannelDescriptor;
-  public channel(type: 'rates'): ChannelDescriptor;
-  public channel(type: MarketDataType, symbol?: string, interval?: string): ChannelDescriptor {
-    const options: SubscriptionOptions = { channel: type, symbol, interval };
+  public channel(type: 'candles', symbol: string, interval: string): IChannelDescriptor;
+  public channel(type: 'orders'|'ticker'|'trades', symbol: string): IChannelDescriptor;
+  public channel(type: 'rates'): IChannelDescriptor;
+  public channel(type: MarketDataType, symbol?: string, interval?: string): IChannelDescriptor {
+    const options: ISubscriptionOptions = { channel: type, symbol, interval };
     const subscribe = (usersAction: (msg: any) => void) => {
       if (!this.stream) {
         throw new Error('StreamProvider is not initialized');

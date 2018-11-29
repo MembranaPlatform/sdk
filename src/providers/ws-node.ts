@@ -1,13 +1,13 @@
 import Debug from 'debug';
 import WebSocket from 'ws';
-import StreamProvider, { StreamProviderOptions } from './stream';
+import StreamProvider, { IStreamProviderOptions } from './stream';
 
 const debug = Debug('membrana-sdk:ws');
 
 class WSStreamProviderNode extends StreamProvider {
   protected wsInstance: WebSocket;
 
-  constructor(options: StreamProviderOptions) {
+  constructor(options: IStreamProviderOptions) {
     super(options);
     const headers = { Authorization: this.Authorization };
     this.wsInstance = new WebSocket(this.url, { headers });
