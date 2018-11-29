@@ -149,7 +149,7 @@ async function verifyClient(
   url.searchParams.delete('authorization');
   const signingPayload = `${url.host}${url.pathname}${url.search}\n${nonce}`;
 
-  const hmac = crypto.createHmac('sha256', credentials.secret);
+  const hmac = crypto.createHmac('sha256', Buffer.from(credentials.secret, 'hex'));
   hmac.update(signingPayload);
   const digest = hmac.digest('hex');
 

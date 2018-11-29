@@ -1,7 +1,7 @@
 import { sha256 } from 'js-sha256';
 import { URL } from 'whatwg-url';
 
-export function stringToUint8Array(str: string): Uint8Array {
+function stringToUint8Array(str: string): Uint8Array {
   const arr = [];
   for (let i = 0; i < str.length; i++) {
     const charCode = str.charCodeAt(i);
@@ -15,11 +15,6 @@ export function stringToUint8Array(str: string): Uint8Array {
   }
 
   return Uint8Array.from(arr);
-}
-
-export function stringFromUint8Array(arr: Uint8Array): string {
-  // this will work only for strings contain single-byte utf8 characters
-  return String.fromCharCode.apply(null, arr);
 }
 
 export function toLengthPrefixedUint8Array(msg: string): Uint8Array {
@@ -49,6 +44,15 @@ export function sign(secret: string, method: string, url: string | URL, nonce: n
 
   const signingString = `${method}\n${url.host}${url.pathname}${url.search}\n${nonce}\n${body}`;
   const lengthPrefixed = toLengthPrefixedUint8Array(signingString);
-  const signature = sha256.hmac(secret, lengthPrefixed);
+  const signature = sha256.hmac(decodeHexString(secret), lengthPrefixed);
   return signature;
+}
+
+export function decodeHexString(hexString: string): Uint8Array {
+  const length = hexString.length / 2 | 0;
+  const arr: number[] = new Array(length);
+  for (let i = 0; i < length; i++) {
+    arr[i] = parseInt(hexString.substr(i * 2, 2), 16);
+  }
+  return Uint8Array.from(arr);
 }

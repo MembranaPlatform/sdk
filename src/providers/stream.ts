@@ -2,6 +2,7 @@ import Debug from 'debug';
 import { sha256 } from 'js-sha256';
 import { URL } from 'whatwg-url';
 import EventEmitter from 'wolfy87-eventemitter';
+import { decodeHexString } from '../util';
 
 const debug = Debug('membrana-sdk:ws');
 
@@ -51,7 +52,7 @@ export default abstract class StreamProvider extends EventEmitter {
     const nonce = Date.now();
 
     const signingString = `${url.host}${url.pathname}${url.search}\n${nonce}`;
-    const signature = sha256.hmac(this.apiSecret, signingString);
+    const signature = sha256.hmac(decodeHexString(this.apiSecret), signingString);
     this.Authorization = `membrana-token ${this.apiKey}:${signature}:${nonce}`;
 
     this.initTimeout = setTimeout(() => {
