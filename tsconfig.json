@@ -5,7 +5,6 @@
     "lib": ["es2018", "dom"],
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
@@ -19,9 +18,10 @@
     "types": [],
     "esModuleInterop": true
   },
+  "include": [
+    "./src/"
+  ],
   "exclude": [
     "./src/**/*.spec.ts",
-    "./examples",
-    "./dist"
   ]
 }

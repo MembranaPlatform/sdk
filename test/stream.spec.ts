@@ -5,8 +5,8 @@ import { IncomingMessage, OutgoingHttpHeaders } from 'http';
 import path from 'path';
 import { URL } from 'url';
 import WebSocket, { Server } from 'ws';
-import MembranaSDK from '.';
-import StreamProvider from './providers/ws-node';
+import MembranaSDK from '../src';
+import StreamProvider from '../src/providers/ws-node';
 
 const credentials = {
   key: '1a1d8a12609cb3d82dc6958036046f67fa5a1ca7',

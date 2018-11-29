@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "test": "ts-mocha src/**/*.spec.ts"
+    "test": "ts-mocha '{src/**/*.spec,test/*}.ts'"
   },
   "repository": {
     "type": "git",
