@@ -50,9 +50,9 @@ export function sign(secret: string, method: string, url: string | URL, nonce: n
 
 export function decodeHexString(hexString: string): Uint8Array {
   const length = hexString.length / 2 | 0;
-  const arr: number[] = new Array(length);
+  const arr = new Uint8Array(length);
   for (let i = 0; i < length; i++) {
     arr[i] = parseInt(hexString.substr(i * 2, 2), 16);
   }
-  return Uint8Array.from(arr);
+  return arr;
 }
