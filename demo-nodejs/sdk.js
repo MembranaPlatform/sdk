@@ -4,11 +4,10 @@
 */
 const MembranaSDK = require('../dist');
 const StreamProvider = require('../dist/providers/ws-node');
-// const StreamProvider = require('../dist/providers/ws-browser');
 
 const credentials = {
-  key: 'your API key',
-  secret: 'your API secret',
+  key: process.env.API_KEY,
+  secret: process.env.API_SECRET,
 };
 
 const membrana = new MembranaSDK({
@@ -37,13 +36,14 @@ membrana.on('error', (err) => {
     const myOrders = await membrana.getOrders('XRP-ETH');
     console.log('myOrders', myOrders);
 
-    const newOrder = await membrana.order()
-      .market('USDT-ETH')
-      .amount(2)
-      .sell()
-      .limit(258.65)
-      .send();
-    console.log('order placed', newOrder);
+    // The following command places a trading order on the exchange
+    // const newOrder = await membrana.order()
+    //   .market('USDT-ETH')
+    //   .amount(2)
+    //   .sell()
+    //   .limit(258.65)
+    //   .send();
+    // console.log('order placed', newOrder);
   } catch (err) {
     console.log('something went wrong', err);
   }

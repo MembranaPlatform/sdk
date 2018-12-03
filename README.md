@@ -207,6 +207,31 @@ See complete example [here](examples/sdk.js)
 
 ## Symbol format
 
-Trading pairs should look like 'USDT-BTC'. "Quote asset" must be first followed by "Base asset". Use dash ("-") as a delimiter.
+Trading pairs should look like 'USDT-BTC'. "Quote asset" must be first followed by "Base asset". Use dash ("-") as a delimiter. For the 'USDT-ETH' symbol amount will be expressed by the ETH and price will be expressed by the amount of USDT per ETH.
 
-If you want to buy ETH and give USDT, the symbol will 'USDT-ETH' and price will be expressed by the amount of USDT per ETH.
+## Demo
+
+To run demo define environment variables API_KEY and API_SECRET and install dependencies.
+
+```sh
+export API_KEY=<your membrana api key>
+export API_SECRET=<your membrana api secret>
+```
+
+To run nodejs demo run commands:
+
+```sh
+npm i
+node demo-nodejs/sdk.js
+```
+
+To run browser demo run commands:
+
+```sh
+npm i
+cd demo-browser
+npm i
+npm run build
+http-server .
+# or `serve .` or any other http server
+```

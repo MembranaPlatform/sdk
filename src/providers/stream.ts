@@ -1,9 +1,6 @@
-import Debug from 'debug';
 import { URL } from 'whatwg-url';
 import EventEmitter from 'wolfy87-eventemitter';
 import { sign } from '../util';
-
-const debug = Debug('membrana-sdk:ws');
 
 export interface IStreamProviderOptions {
   baseUrl?: string;
@@ -34,7 +31,7 @@ export default abstract class StreamProvider extends EventEmitter {
   public static defaultUrl: string = 'wss://membrana.io';
   protected Authorization: string;
   protected exchange: string = '';
-  protected initTimeout: NodeJS.Timer;
+  protected initTimeout: any; // it might be NodeJS.Timer or number in the browser
   protected lastReqId: number;
   protected apiKey: string;
   protected apiSecret: string;
@@ -67,7 +64,7 @@ export default abstract class StreamProvider extends EventEmitter {
   protected onMessage(msg: { [k: string]: any }) {
     if ('method' in msg) {
       if (msg.method === 'notification' && Array.isArray(msg.params)) {
-        this.emit.apply(this, msg.params);
+        this.emit.apply(this, msg.params as any);
         return;
       }
       if (msg.method === 'init') {
@@ -81,7 +78,6 @@ export default abstract class StreamProvider extends EventEmitter {
       this.emit(String(msg.id), msg);
       return;
     }
-    debug('unknown ws event. msg: %o', msg);
   }
 
   protected onClose() {

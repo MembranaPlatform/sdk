@@ -1,8 +1,5 @@
-import Debug from 'debug';
 import WebSocket from 'ws';
 import StreamProvider, { IStreamProviderOptions } from './stream';
-
-const debug = Debug('membrana-sdk:ws');
 
 class WSStreamProviderNode extends StreamProvider {
   protected wsInstance: WebSocket;
@@ -19,7 +16,7 @@ class WSStreamProviderNode extends StreamProvider {
         const msg = JSON.parse(String(msgData));
         this.onMessage(msg);
       } catch (e) {
-        debug('failed to parse ws event data', e.message || e);
+        console.error('failed to parse ws event data', e.message || e);
       }
     });
   }
